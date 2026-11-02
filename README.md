@@ -76,7 +76,15 @@ npx @vermauv/house-search geocode "Mahadevapura, Bengaluru"
 
 After `npm install -g @vermauv/house-search`, use `house-search` or `hs` instead of `npx`.
 
-**Publish (maintainers, once per release):** log in with `npm login`, bump `version` in `package.json` and `plugin.json`, then `npm publish --access public` from the repo root. Scoped package `@vermauv/house-search` requires `--access public` on first publish.
+**Publish (maintainers):** CI publishes on version tags (see `.github/workflows/release.yml`).
+
+1. Bump `version` in `package.json` and `plugin.json` (keep them in sync).
+2. Commit, then tag and push: `git tag v0.1.0 && git push origin main --tags` (tag must match `v` + `package.json` version).
+3. GitHub Actions runs `npm test` and `npm publish --provenance --access public` using **npm trusted publishing (OIDC)**—no long-lived `NPM_TOKEN`.
+
+One-time setup on [npmjs.com](https://www.npmjs.com): package **Settings → Trusted publishing → GitHub Actions** — organization/user `vermauv`, repository `house-search`, workflow filename **`release.yml`** (exact name). Enable **allow publish** if you are replacing the `0.0.0-stage` placeholder with a real release. The npm registry page shows whatever **`README.md`** is included in the published tarball (`package.json` → `"files"`); it is not synced from GitHub automatically.
+
+Manual publish still works: `npm login`, then `npm publish --access public` from the repo root.
 
 ## Requirements
 
@@ -104,8 +112,12 @@ After `npm install -g @vermauv/house-search`, use `house-search` or `hs` instead
 ## Develop & test
 
 ```bash
+# One-time: project venv (Homebrew Python blocks global pip — PEP 668)
+python3 -m venv .venv && source .venv/bin/activate
+pip install pytest   # only while the venv is active
+
 # Python unit tests (offline)
-cd skills/house-search/scripts && pip install pytest && pytest -q
+cd skills/house-search/scripts && pytest -q
 
 # Repo checks (frontmatter, amenities.md, symlinks, npm package layout)
 python3 scripts/check_repo.py
@@ -113,7 +125,10 @@ python3 scripts/check_repo.py
 # npm CLI smoke tests (Node 18+)
 node --test test/npm-cli.test.js
 
-# Or everything CI runs:
+# npm CLI smoke tests + repo checks (same as prepublishOnly)
+npm run test:publish
+
+# Full suite including Python unit tests (activate .venv first, or pytest on PATH)
 npm test
 ```
 

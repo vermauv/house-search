@@ -34,7 +34,9 @@
     "node": ">=18"
   },
   "scripts": {
-    "test": "node --test test/npm-cli.test.js && python3 scripts/check_repo.py && cd skills/house-search/scripts && pytest -q",
-    "prepublishOnly": "npm test"
+    "test": "npm run test:publish && npm run test:python",
+    "test:publish": "node --test test/npm-cli.test.js && python3 scripts/check_repo.py",
+    "test:python": "python3 -m pytest -q skills/house-search/scripts/tests",
+    "prepublishOnly": "npm run test:publish"
   }
 }

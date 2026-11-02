@@ -1,0 +1,47 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+  id-token: write # npm trusted publishing (OIDC); no NPM_TOKEN secret
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # npm OIDC requires CLI ≥11.5.1 (bundled on Node 22.14+ / 24)
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
+      - name: Install test deps
+        run: pip install pytest
+
+      - name: Test
+        run: npm test
+
+      - name: Verify tag matches package.json version
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          PKG="$(node -p "JSON.parse(require('node:fs').readFileSync('package.json','utf8')).version")"
+          if [ "v${PKG}" != "${TAG}" ]; then
+            echo "::error::Tag ${TAG} must match package.json version v${PKG}"
+            exit 1
+          fi
+
+      # Authenticates via GitHub OIDC → npm trusted publisher (package settings:
+      # repo vermauv/house-search, workflow filename release.yml).
+      - name: Publish to npm
+        run: npm publish --provenance --access public
