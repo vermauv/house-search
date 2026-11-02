@@ -1,0 +1,19 @@
+# OS / editor cruft
+.DS_Store
+**/.DS_Store
+
+# Python
+__pycache__/
+**/__pycache__/
+*.pyc
+.venv/
+**/.venv/
+.pytest_cache/
+.uv-cache/
+
+# Run output (never committed)
+house-search-output*/
+
+# Secrets
+.env
+.env.*

@@ -1,0 +1,12 @@
+{
+  "name": "house-search",
+  "description": "Find a rental home in plain English, then see which neighbourhood is actually safe, flood-free and close to a hospital.",
+  "owner": { "name": "house-search contributors" },
+  "plugins": [
+    {
+      "name": "house-search",
+      "source": "./",
+      "description": "Plain-English rental search across portals, ranked on safety, ambulance access, commute and waterlogging."
+    }
+  ]
+}

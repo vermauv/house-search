@@ -1,0 +1,22 @@
+{
+  "name": "house-search",
+  "version": "0.1.0",
+  "description": "Describe the rental you want in plain English; get a ranked shortlist across rental platforms, scored on safety, hospital and ambulance access, metro, malls, office commute and waterlogging risk.",
+  "author": { "name": "house-search contributors" },
+  "license": "MIT",
+  "keywords": ["rental", "real-estate", "house-hunting", "safety", "skill"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "house-search",
+    "shortDescription": "Find a rental and see how safe and flood-proof the area is.",
+    "longDescription": "Type the home you want in your own words. The skill searches rental platforms, locates the area, and ranks listings on safety, hospital and ambulance time in peak traffic, metro and malls, optional office commute, and waterlogging warnings.",
+    "developerName": "house-search contributors",
+    "category": "Productivity",
+    "capabilities": ["Read", "Write", "Execute"],
+    "defaultPrompt": [
+      "Find me a 2bhk semi furnished flat in Mahadevapura under 55k.",
+      "Which area near Whitefield is safest to rent in?",
+      "Find a pet-friendly 3bhk villa and warn me about waterlogging."
+    ]
+  }
+}

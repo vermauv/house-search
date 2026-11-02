@@ -1,0 +1,9 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "house-search",
+  "version": "0.1.0",
+  "description": "Describe the rental you want in plain English; get a ranked shortlist across rental platforms, scored on safety, hospital and ambulance access, metro, malls, office commute and waterlogging risk.",
+  "author": { "name": "house-search contributors" },
+  "license": "MIT",
+  "keywords": ["rental", "real-estate", "house-hunting", "safety", "skill"]
+}

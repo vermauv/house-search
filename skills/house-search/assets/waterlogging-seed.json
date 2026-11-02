@@ -1,0 +1,63 @@
+{
+  "_comment": "Starting point only, built from public news reporting. Every entry carries its source. Always run a live news search for the user's actual locality and street; add findings to the run, not here, unless you are maintaining the seed. Add `official_list: true` only for entries taken from a civic body's own vulnerable-spot list. `date` is the reporting date (YYYY-MM-DD), not the rain date.",
+  "cities": {
+    "bengaluru": [
+      {
+        "area": "Whitefield",
+        "aliases": [],
+        "date": "2026-06-21",
+        "note": "Named among worst-hit areas after the 20 June 2026 downpour.",
+        "source_url": "https://www.thenewsminute.com/karnataka/whitefield-varthur-among-worst-hit-as-downpour-inundates-bengaluru"
+      },
+      {
+        "area": "Mahadevapura",
+        "aliases": ["Mahadevpura"],
+        "date": "2026-06-21",
+        "note": "Named among worst-hit areas after the 20 June 2026 downpour. A 2020 civic-body list also counted 32 vulnerable stormwater drains in the Mahadevapura zone (zone-wide, no named spots).",
+        "source_url": "https://www.thenewsminute.com/karnataka/whitefield-varthur-among-worst-hit-as-downpour-inundates-bengaluru"
+      },
+      {
+        "area": "Varthur",
+        "aliases": ["Varthur Road", "Varthur Kodi"],
+        "date": "2026-06-21",
+        "note": "Severe accumulation on Varthur Road and HAL Airport Road; water reported entering apartment complexes near Varthur Road.",
+        "source_url": "https://www.thenewsminute.com/karnataka/whitefield-varthur-among-worst-hit-as-downpour-inundates-bengaluru"
+      },
+      {
+        "area": "HAL Airport Road",
+        "aliases": ["Old Airport Road"],
+        "date": "2026-06-21",
+        "note": "Severe water accumulation where it joins Varthur Road.",
+        "source_url": "https://www.thenewsminute.com/karnataka/whitefield-varthur-among-worst-hit-as-downpour-inundates-bengaluru"
+      },
+      {
+        "area": "Hebbal",
+        "aliases": ["Hebbal flyover"],
+        "date": "2026-06-21",
+        "note": "Hebbal up-ramp towards the airport reported waterlogged.",
+        "source_url": "https://www.thenewsminute.com/karnataka/whitefield-varthur-among-worst-hit-as-downpour-inundates-bengaluru"
+      },
+      {
+        "area": "Sahakarnagar",
+        "aliases": ["GKVK underpass"],
+        "date": "2026-06-21",
+        "note": "Sahakarnagar-GKVK underpass reported waterlogged.",
+        "source_url": "https://www.thenewsminute.com/karnataka/whitefield-varthur-among-worst-hit-as-downpour-inundates-bengaluru"
+      },
+      {
+        "area": "Marathahalli",
+        "aliases": ["Marathahalli ORR"],
+        "date": null,
+        "note": "News Minute headline 'Bengaluru flooded again after rains, Marathahalli ORR under water' (undated here; open the link for the year). Re-check recency.",
+        "source_url": "https://www.thenewsminute.com/amp/story/karnataka/bengaluru-flooded-again-after-rains-marathahalli-orr-under-water-167535"
+      },
+      {
+        "area": "Koramangala",
+        "aliases": ["Sony Signal"],
+        "date": "2020-06-05",
+        "note": "Sony Signal (Koramangala) named in a 2020 Citizen Matters piece on vulnerable stormwater-drain spots.",
+        "source_url": "https://citizenmatters.in/bengaluru-rain-flooding-stormwater-drains-vulnerable-areas-list"
+      }
+    ]
+  }
+}

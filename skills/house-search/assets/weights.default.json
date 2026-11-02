@@ -1,0 +1,9 @@
+{
+  "_comment": "Relative importance of each score component. They are renormalised over whatever data exists, so they need not sum to 1. Override with: rank --weights my.json, or ask for 'safety first' and the agent sets --sort safety.",
+  "safety": 0.30,
+  "medical": 0.25,
+  "commute": 0.15,
+  "amenities": 0.15,
+  "metro": 0.075,
+  "entertainment": 0.075
+}

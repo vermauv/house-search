@@ -1,0 +1,4 @@
+# Symlinks: never subject to text/EOL normalization
+.agents/skills/house-search -text
+.claude/skills/house-search -text
+.opencode/skills/house-search -text
