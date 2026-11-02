@@ -131,6 +131,24 @@ def check_symlinks() -> None:
             _fail(f"symlink points wrong: {link.relative_to(ROOT)}")
 
 
+def check_npm_package() -> None:
+    pkg_path = ROOT / "package.json"
+    if not pkg_path.is_file():
+        _fail("missing package.json for @vermauv/house-search npm package")
+    pkg = json.loads(pkg_path.read_text(encoding="utf-8"))
+    if pkg.get("name") != "@vermauv/house-search":
+        _fail("package.json name must be @vermauv/house-search")
+    bin_rel = (pkg.get("bin") or {}).get("house-search")
+    if not bin_rel:
+        _fail("package.json must declare bin.house-search")
+    bin_path = ROOT / bin_rel
+    if not bin_path.is_file():
+        _fail(f"npm bin missing: {bin_rel}")
+    hs = ROOT / "skills" / "house-search" / "scripts" / "hs.py"
+    if not hs.is_file():
+        _fail(f"missing bundled helper: {hs.relative_to(ROOT)}")
+
+
 def check_manifests() -> None:
     for rel in ("plugin.json", ".claude-plugin/plugin.json", ".codex-plugin/plugin.json", ".claude-plugin/marketplace.json"):
         path = ROOT / rel
@@ -166,6 +184,7 @@ def main() -> int:
     check_skill_frontmatter()
     check_reference_links()
     check_symlinks()
+    check_npm_package()
     check_manifests()
     check_amenities(vocab_mod)
     print("check_repo: ok")

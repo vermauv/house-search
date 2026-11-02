@@ -57,13 +57,19 @@ The JSON passed between steps. Unknown fields are allowed and ignored; missing f
   "amenities_absent": [],
   "posted_at": "2026-10-25",
   "fetched_at": "2026-10-30T11:40:00+05:30",
+  "notes": [
+    "All-in ₹36,800/mo with ₹2,000 maintenance per portal breakup",
+    "NoBroker livability 6.2 / transit 8.5 (portal scores, not verified independently)"
+  ],
   "enrichment": {}
 }
 ```
 
-- `rent` is monthly, in the budget's currency. If a source quotes an all-in price, put that in `rent` and the breakdown in a `notes` field.
+- `rent` is monthly, in the budget's currency. Keep the headline rent in `rent`; use `deposit`, `maintenance`, and related fields where the portal gives them; put brokerage, all-in totals, and other breakdown context in `notes` when there is no dedicated field.
+- `notes` on a **listing** is a string array of facts from the **opened listing page** that do not belong in structured fields. Use it for: portal livability/transit scores, LIVE / verified-availability badges, "other units same rent", tenant-type restrictions, geocode or map-pin uncertainty, viewing-schedule text (never phone numbers), warnings that a post may be stale, and clarifications when the address is outside the locality the person named. Do not repeat amenity keys already captured in `amenities` / `amenities_absent` unless the portal wording is ambiguous.
 - `amenities` are keys the listing **states**; `amenities_absent` are keys it **explicitly denies**. Silence is neither.
 - No owner or broker contact details. The `url` is the route.
+- `hs.py report` prints each listing's `notes` as bullets under that home (after "Ask the owner" lines).
 
 ## Enrichment
 

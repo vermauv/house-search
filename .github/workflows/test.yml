@@ -8,7 +8,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
       - run: pip install pytest
       - run: python scripts/check_repo.py
       - run: pytest -q
         working-directory: skills/house-search/scripts
+      - run: node --test test/npm-cli.test.js

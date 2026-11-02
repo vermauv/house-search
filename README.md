@@ -2,124 +2,140 @@
 
 **Say what home you want. Get the ones worth visiting.**
 
-`/house-search` is an agent skill. You describe a rental in your own words; it finds listings across the rental platforms, locates the area on the map, and ranks what it finds on the things portals do not show you:
+[`/house-search`](https://github.com/vermauv/house-search) is an **agent skill** plus a small **CLI**. You describe a rental in plain English; an agent searches rental portals, checks the neighbourhood, ranks what it finds, and writes a report. The CLI runs the same tested helpers (`normalize`, `geocode`, `rank`, `report`, …) without opening an IDE.
 
-- **Safety**, from police statistics, news incident reports and society-level security, with a confidence level.
-- **Hospital access**, and how soon an **ambulance** could reach the home in peak traffic.
-- **Metro** and **malls** nearby.
-- **Office commute**: Google Maps traffic from each home to your office at the time you leave, shown as 1x, 2x, 3x or 4x the normal trip.
-- **Waterlogging**: a ⚠️ on any area that news reports repeatedly link to flooding or waterlogged roads.
+**Repository:** [github.com/vermauv/house-search](https://github.com/vermauv/house-search)
+
+## What you get beyond portal filters
+
+- **Safety** — public incident reporting and society-level security, with a confidence level (not a guarantee).
+- **Hospital access** — nearest emergency-capable hospitals; **ambulance** time estimates in peak traffic when Maps data is available.
+- **Metro** and **malls** — straight-line distance from each home.
+- **Office commute** — typical weekday traffic to your office at the times you leave, as 1× / 2× / 3× / 4×+ vs free-flow.
+- **Waterlogging** — ⚠️ when dated news ties the area to repeated flooding (never “proven safe” when nothing is found).
+
+Example prompt:
 
 ```text
 /house-search semi furnished 2.5bhk apartment in Mahadevapura with 2 wheeler parking,
 gym, swimming pool, pets allowed, vastu compliant, east facing, under 55k
 ```
 
-It understands furnishing (unfurnished, semi-furnished, furnished), unit type (studio, 1RK, 1BHK, 2BHK, 2.5BHK, 3BHK, 5BHK...), property type (apartment, house, villa, bungalow, serviced apartment) and 38 amenities from parking and gated community to jogging track and rain water harvesting ([full list](skills/house-search/references/amenities.md)).
+The skill understands furnishing, BHK, property type, budget, and [38 amenity keys](skills/house-search/references/amenities.md) (parking, lift, power backup, pets, gym, …). Listings can carry a **`notes`** array for portal-only detail (livability scores, deposit/all-in rent, “other units same building”, map-pin caveats); **`report.md` / `report.html` print those bullets**. If you paste a **listing URL** after a run, the agent should open it, append to `listings.json`, and re-run `rank` + `report` (see skill step 3b).
 
-## Install
+Run output goes in **`house-search-output/`** (gitignored): `requirements.json`, `listings.json`, `enriched.json`, `ranked.json`, `report.md`, `report.html`.
 
-Replace `<owner>` with the GitHub account hosting this repository.
+## Disclaimer
 
-**Claude Code:**
+**This project is a research and detail aggregator, not a rental marketplace or broker.** It does not list properties, negotiate leases, verify owners, or handle payments. All listing data comes from third-party sites; URLs in the report are for you to open and confirm. Rankings and scores are indicative only, built from public sources available at run time.
 
-```bash
-/plugin marketplace add <owner>/house-search
-/plugin install house-search@house-search
-```
+**The authors and contributors are not responsible for any dispute, loss, or legal issue** arising from rentals you pursue based on this tool—including inaccurate or stale listings, portal scams, neighbourhood conditions, or commute times. Always verify rent, deposit, amenities, and paperwork on the portal or with the owner before paying or signing.
 
-**Codex:**
+## Install the skill (agents)
 
-```bash
-codex plugin marketplace add <owner>/house-search
-codex plugin add house-search@house-search
-```
-
-**Any other agent** (Cursor, Copilot, Gemini CLI, opencode, and more), via the [`skills`](https://github.com/vercel-labs/skills) CLI:
+**Recommended** — [`skills` CLI](https://github.com/vercel-labs/skills) (Cursor, Copilot, Gemini, Claude Code, opencode, and others):
 
 ```bash
-npx skills add https://github.com/<owner>/house-search --skill house-search
+npx skills add https://github.com/vermauv/house-search --skill house-search
 ```
 
 <details>
 <summary>No installer? Copy the skill directly.</summary>
 
 ```bash
-rsync -a --exclude '__pycache__' skills/house-search/ ~/.claude/skills/house-search/
+git clone https://github.com/vermauv/house-search.git
+# use skills/house-search/ from the clone, or copy it:
+rsync -a --exclude '__pycache__' skills/house-search/ ~/.cursor/skills/house-search/
+# or ~/.claude/skills/house-search/, etc.
 ```
 
 Restart your agent after copying.
 </details>
 
-### Also works with
+### Agent discovery paths
 
-The repo exposes the skill at each agent's standard discovery path via symlinks.
-
-| Agent | How it discovers |
+| Agent | Skill location |
 |---|---|
-| **Claude Code** | `.claude/skills/house-search/` (or the plugin install above) |
-| **Codex CLI, Antigravity** | `.agents/skills/house-search/` |
-| **opencode** | `.opencode/skills/house-search/` |
-| **Other agents** | Point custom instructions at `skills/house-search/SKILL.md`; see [`docs/other-agents.md`](docs/other-agents.md) |
+| **Claude Code** | Copy or symlink to `skills/house-search/` → `.claude/skills/house-search/` |
+| **Codex / Antigravity** | `.agents/skills/house-search/` (symlink when cloned from this repo) |
+| **opencode** | `.opencode/skills/house-search/` (symlink when cloned from this repo) |
+| **Cursor** | `skills/house-search/` in repo, or `~/.cursor/skills/house-search/` globally (`.cursor/` is local-only and gitignored) |
+| **Other** | Point instructions at `skills/house-search/SKILL.md` — [`docs/other-agents.md`](docs/other-agents.md) |
 
-On Windows, symlinks need `git config core.symlinks true` and Developer Mode; otherwise copy `skills/house-search/` into the agent's skills folder.
+On Windows, enable symlinks (`git config core.symlinks true`, Developer Mode) or copy `skills/house-search/` instead of relying on repo symlinks.
+
+## CLI (`npx`, no agent required for helpers)
+
+Python **3.11+** must be on your `PATH` as `python3` (or set `PYTHON`). The npm package ships the skill scripts and a launcher:
+
+```bash
+npx @vermauv/house-search --help
+npx @vermauv/house-search normalize --text "2bhk furnished flat in Indiranagar under 40k"
+npx @vermauv/house-search geocode "Mahadevapura, Bengaluru"
+```
+
+After `npm install -g @vermauv/house-search`, use `house-search` or `hs` instead of `npx`.
+
+**Publish (maintainers, once per release):** log in with `npm login`, bump `version` in `package.json` and `plugin.json`, then `npm publish --access public` from the repo root. Scoped package `@vermauv/house-search` requires `--access public` on first publish.
 
 ## Requirements
 
-- An agent that supports Agent Skills (or can follow `SKILL.md` instructions).
-- Python 3.11+ for the helper scripts. They use only the standard library; nothing to install.
-- Web search and page fetch in your agent. A browser tool helps with portals that need filters set by hand.
-- **Optional but recommended:** `GOOGLE_MAPS_API_KEY` with the Geocoding and Routes APIs enabled. It powers the traffic multipliers and ambulance times. Without it, the skill still runs: places come from OpenStreetMap and traffic falls back to reading Google Maps in a browser, or is left out and said so.
+- An agent that can follow `SKILL.md` (for the full workflow), **or** Python 3.11+ for CLI-only use.
+- Web search / fetch in the agent; a browser tool helps for portals and Maps traffic fallback.
+- **Optional:** `GOOGLE_MAPS_API_KEY` (Geocoding + Routes) for traffic multipliers and ambulance times. Without it, the skill still runs with OpenStreetMap and manual Maps fallback where possible.
 
 ## How it works
 
-The agent does the reading and judging; small tested scripts do the parts that must be exact.
-
-| Step | Agent | Script (`skills/house-search/scripts/hs.py`) |
+| Step | Agent | `hs.py` / `npx @vermauv/house-search` |
 |---|---|---|
-| 1. Understand | Reads your sentence, asks at most three questions | `normalize`: canonical furnishing, BHK, amenities, budget |
-| 2. Locate | Confirms the locality, picks the radius | `geocode`: Google or OpenStreetMap, flags ambiguity |
-| 3. Discover | Searches portals, normalises, de-duplicates | none (judgement and browsing) |
-| 4. Check | Researches safety and waterlogging, verifies hospitals | `nearby`, `ambulance`, `traffic`, `waterlog`, `safety-news` |
-| 5. Rank | Writes the answer | `rank`, `report`: scores, filters, `report.md` + `report.html` |
-
-Output lands in `house-search-output/`: requirements, listings, enriched data, ranked results, and a report you can open or share.
+| 1. Understand | Parses your sentence; ≤3 questions | `normalize` |
+| 2. Locate | Confirms locality, radius | `geocode` |
+| 3. Discover | Searches portals; can add a URL you send later | (browser + judgement) |
+| 4. Check | Safety, waterlogging, hospitals, commute | `nearby`, `traffic`, `waterlog`, `safety-news`, … |
+| 5. Rank & report | Answer + files | `rank`, `report` |
 
 ## What it will not do
 
-- Invent listings or numbers. Every figure has a source, or is left out and flagged.
-- Call an area "safe" because nothing was found. The wording is "none found".
-- Judge neighbourhoods by who lives there. Safety is scored from incidents and security only.
-- Log in, solve CAPTCHAs or bypass blocks. Blocked sources are reported so you can open them yourself.
-- Contact owners or brokers for you, or store their phone numbers.
+- Invent listings or numbers; silence is flagged, not assumed safe.
+- Score neighbourhoods by demographics—only incidents and property security.
+- Log in, bypass CAPTCHAs, or scrape at volume; blocked sources are reported with a link for you.
+- Contact owners or store broker phone numbers.
 
-## Develop
+## Develop & test
 
 ```bash
-cd skills/house-search/scripts
-pip install pytest && pytest -q          # unit tests, no network needed
-python3 hs.py normalize --text "2bhk furnished flat in Indiranagar under 40k"
-cd ../../.. && python3 scripts/check_repo.py   # frontmatter, links, manifests, symlinks
+# Python unit tests (offline)
+cd skills/house-search/scripts && pip install pytest && pytest -q
+
+# Repo checks (frontmatter, amenities.md, symlinks, npm package layout)
+python3 scripts/check_repo.py
+
+# npm CLI smoke tests (Node 18+)
+node --test test/npm-cli.test.js
+
+# Or everything CI runs:
+npm test
 ```
 
-Network calls go through one injectable transport, so every module is tested offline.
+CI: `.github/workflows/test.yml` (Python 3.12, Node 20, `check_repo`, pytest, npm tests).
 
-## What's in this repo
+## Repo layout
 
-- `skills/house-search/`: `SKILL.md`, `references/` (one file per step, plus sources, safety, waterlogging, data model, amenities), `scripts/`, `assets/`
-- `plugin.json`: portable Agent Plugins manifest
-- `.claude-plugin/`, `.codex-plugin/`: Claude Code and Codex manifests; `marketplace.json` is the shared catalogue
-- `.claude/`, `.agents/`, `.opencode/`: symlinks to the skill for agent discovery
-- `scripts/check_repo.py`: repo sanity checks
-- `docs/`: notes for other agents
+- `skills/house-search/` — `SKILL.md`, `references/`, `scripts/hs.py`, `assets/`
+- `bin/house-search.js` — npm entrypoint → `hs.py`
+- `package.json` — `@vermauv/house-search` on npm
+- `plugin.json`, `.claude-plugin/`, `.codex-plugin/` — optional agent plugin manifests (for tooling; install via `skills` CLI or copy above)
+- `.claude/`, `.agents/`, `.opencode/` — symlinks into `skills/house-search/`
+- `scripts/check_repo.py` — sanity checks
+- `docs/other-agents.md` — wiring notes for other products
 
 ## Limits worth knowing
 
-- Safety is a relative indicator from public evidence, not a guarantee. Fine-grained police data is often unpublished, in which case confidence drops and the report says so.
-- Ambulance times are estimates from peak-hour road traffic with an assumed siren factor; call handling and dispatch delay are not included.
-- `assets/waterlogging-seed.json` is a small sourced starter list. The live news search is the real check.
-- Rental platforms change their pages and access rules often; app-only listings cannot be searched.
+- Safety is relative; station-level police data is often unavailable → lower confidence, stated in the report.
+- Ambulance times assume peak driving + siren factor; dispatch delay excluded.
+- Waterlogging uses live news plus a small seed file; “none found” ≠ no risk.
+- Portals change often; app-only inventory is called out, not pretended searched.
 
 ## License
 
-MIT
+MIT — see [LICENSE](LICENSE).

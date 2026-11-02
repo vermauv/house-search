@@ -27,9 +27,9 @@ python3 <skill-dir>/scripts/hs.py report \
   --out-dir <output-dir> --locality "<locality>"
 ```
 
-This writes `report.md` and a self-contained `report.html` (responsive, light and dark, user content escaped). Both show the ranked table, a card per listing, ⚠️ waterlogging warnings with sources, "ask the owner" lines for unverified must-haves, the excluded list with reasons, and the caveats.
+This writes `report.md` and a self-contained `report.html` (responsive, light and dark, user content escaped). Both show the ranked table, a card per listing, ⚠️ waterlogging warnings with sources, "ask the owner" lines for unverified must-haves, **each listing's `notes` bullets**, the excluded list with reasons, and the caveats.
 
-Open the report once and look at it. Fix anything that reads wrong (a missing link, a number with no source) in the data and re-run; do not hand-edit the output.
+Open the report once and look at it. Fix anything that reads wrong (a missing link, a number with no source) in the data and re-run; do not hand-edit the output. If detail is missing from the report, add it to the listing's `notes` (or structured fields) in `listings.json` / `enriched.json`, then re-run `rank` and `report`.
 
 ## 3. Answer in chat
 

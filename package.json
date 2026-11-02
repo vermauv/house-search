@@ -1,0 +1,40 @@
+{
+  "name": "@vermauv/house-search",
+  "version": "0.1.0",
+  "description": "CLI helpers for the /house-search agent skill (normalize, geocode, rank, report). Not a listing marketplace.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vermauv/house-search.git"
+  },
+  "homepage": "https://github.com/vermauv/house-search#readme",
+  "bugs": {
+    "url": "https://github.com/vermauv/house-search/issues"
+  },
+  "keywords": [
+    "house-search",
+    "rental",
+    "real-estate",
+    "agent-skill",
+    "cursor",
+    "claude"
+  ],
+  "type": "module",
+  "bin": {
+    "house-search": "bin/house-search.js",
+    "hs": "bin/house-search.js"
+  },
+  "files": [
+    "bin/",
+    "skills/house-search/",
+    "LICENSE",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test test/npm-cli.test.js && python3 scripts/check_repo.py && cd skills/house-search/scripts && pytest -q",
+    "prepublishOnly": "npm test"
+  }
+}

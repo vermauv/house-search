@@ -118,4 +118,6 @@ Per locality: safety and waterlogging, each with a year-by-year trend where the 
 
 Run `hs.py rank` then `hs.py report`. Answer in chat with the top few, the warnings, and what could not be verified.
 
-**Gate:** `report.md` and `report.html` exist, every ⚠️ in the chat answer is backed by a cited source, and the answer states data confidence and assumptions.
+If the person sends a **listing URL** after the first report, open it, append to `listings.json`, enrich, and re-run `rank` + `report` (see step 3b in [references/step-3-discover.md](references/step-3-discover.md)). Put portal-only facts in each listing's `notes` so they appear in the report.
+
+**Gate:** `report.md` and `report.html` exist, every ⚠️ in the chat answer is backed by a cited source, the answer states data confidence and assumptions, and worthwhile listing-page detail is in `notes` (not only in chat).

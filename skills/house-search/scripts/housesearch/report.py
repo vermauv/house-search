@@ -136,6 +136,8 @@ def render_markdown(result: Mapping[str, Any], req: Mapping[str, Any], meta: Map
                 out.append("- Not listed: " + ", ".join(label(k) for k in am["nice_missing"]))
             if am["must_unverified"]:
                 out.append("- **Ask the owner** (must-have not confirmed): " + ", ".join(label(k) for k in am["must_unverified"]))
+            for note in it.get("notes") or []:
+                out.append(f"- {note}")
             out.append(f"- Data coverage {it['scores']['coverage']:.0%} ({it['scores']['confidence']} confidence)")
     if result["excluded"]:
         out += ["", "## Excluded", ""]
@@ -182,6 +184,8 @@ def render_html(result: Mapping[str, Any], req: Mapping[str, Any], meta: Mapping
         am = it["scores"]["amenity_match"]
         if am["must_unverified"]:
             body.append('<div class="warn">Ask the owner: ' + e(", ".join(label(k) for k in am["must_unverified"])) + "</div>")
+        for note in it.get("notes") or []:
+            body.append(f"<div>{e(str(note))}</div>")
         cards.append(f'<div class="card"><h3>{it["rank"]}. {t}</h3>{"".join(body)}</div>')
     head = "<tr>" + "".join(f"<th>{h}</th>" for h in ("#", "Listing", "Rent", "Score", "Safety", "Ambulance", "Metro", "Mall", "Commute", "Waterlogging")) + "</tr>"
     return (

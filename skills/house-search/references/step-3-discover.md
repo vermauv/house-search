@@ -20,6 +20,8 @@ Run searches for each locality in `area.json` and for each unit type the person 
 
 For each listing open the page and read: rent, deposit, maintenance, furnishing, unit type, property type, society, area, floor, bathrooms, age, facing, amenities, posted date, availability.
 
+Also capture portal-only context in the listing's `notes` array (see [data-model.md](data-model.md#listing)): livability/transit scores, verified availability, multiple units at the same rent, pets or tenant restrictions already reflected in `amenities_absent`, all-in monthly cost, and whether the pin is outside the locality name the person asked for.
+
 **Hygiene**
 
 - Only public pages. No logins, no CAPTCHA solving, no bypassing blocks, no high-volume crawling. If a source blocks you, record `{"source": "...", "status": "blocked", "open_url": "<search link for the person>"}`.
@@ -29,7 +31,16 @@ For each listing open the page and read: rent, deposit, maintenance, furnishing,
 
 ## 3. Normalise to the shared record
 
-Use the fields in [data-model.md](data-model.md#listing). Map amenity wording to canonical keys with [amenities.md](amenities.md): put what the listing states in `amenities`, what it explicitly denies ("no lift", "pets not allowed") in `amenities_absent`, and leave everything else out. Silence is not denial.
+Use the fields in [data-model.md](data-model.md#listing). Map amenity wording to canonical keys with [amenities.md](amenities.md): put what the listing states in `amenities`, what it explicitly denies ("no lift", "pets not allowed") in `amenities_absent`, and leave everything else out. Silence is not denial. Put remaining facts worth reporting in `notes`.
+
+## 3b. Add a listing the person sends later
+
+When the person shares a **specific listing URL** (including portal "similar" links) after the first pass:
+
+1. Open that URL and normalise a full record like any other listing.
+2. Append it to `<output-dir>/listings.json` and bump the source `count` / note in `sources`.
+3. Enrich it (copy locality-level safety/waterlogging from a neighbour if needed; record approximation in `notes` and `enrichment.gaps`).
+4. Re-run `hs.py rank` and `hs.py report`. Do not hand-edit `report.md` / `report.html`.
 
 ## 4. De-duplicate
 

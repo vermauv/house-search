@@ -156,6 +156,17 @@ def test_report_handles_no_results():
     assert "No listing passed" in md and "too dear" in md
 
 
+def test_report_prints_listing_notes():
+    item = listing("a")
+    item["notes"] = ["Deposit ₹90,000", "Outside requested micro-locality"]
+    res = scoring.rank([item], REQ, W)
+    meta = {"locality": "X", "query": "q", "as_of": "2026-10-30"}
+    md = report.render_markdown(res, REQ, meta)
+    assert "Deposit ₹90,000" in md and "Outside requested micro-locality" in md
+    page = report.render_html(res, REQ, meta)
+    assert "Outside requested micro-locality" in page
+
+
 def test_cli_end_to_end(tmp_path, capsys):
     (tmp_path / "l.json").write_text(json.dumps([listing("a"), listing("b", rent=99999)]))
     (tmp_path / "r.json").write_text(json.dumps(REQ))

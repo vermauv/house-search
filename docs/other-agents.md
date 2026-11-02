@@ -1,6 +1,25 @@
 # Using /house-search with other AI agents
 
-Agents without native `SKILL.md` discovery (Cursor, Aider, or any LLM with custom instructions) can still use the skill.
+## Cursor (Composer / Agent)
+
+Cursor discovers skills from:
+
+| Scope | Path |
+|---|---|
+| **This repo** | `.cursor/skills/house-search/` → symlink to `skills/house-search/` |
+| **All projects** | `~/.cursor/skills/house-search/` (copy or symlink the whole folder) |
+
+Install from a checkout:
+
+```bash
+mkdir -p .cursor/skills ~/.cursor/skills
+ln -sf ../../skills/house-search .cursor/skills/house-search
+rsync -a --exclude '__pycache__' --exclude '.venv' skills/house-search/ ~/.cursor/skills/house-search/
+```
+
+Restart Cursor or start a new Agent/Composer chat so the skill loads. Then try natural language such as “find me a 2bhk in Mahadevapura under 55k” or `/house-search`.
+
+Agents without native `SKILL.md` discovery (Aider, or any LLM with custom instructions) can still use the skill.
 
 ## Option 1: Paste into custom instructions
 
