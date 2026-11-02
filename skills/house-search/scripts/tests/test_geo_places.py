@@ -78,6 +78,23 @@ def test_nearby_limits_results():
     els = [{"type": "node", "lat": 12.99 + i / 1000, "lon": 77.69, "tags": {"shop": "mall", "name": f"Mall {i}"}} for i in range(6)]
     r = places.nearby(12.99, 77.69, ["mall"], limit=3, transport=fake({"elements": els}))
     assert len(r["mall"]) == 3
+    assert r["_meta"]["element_count"] == 6
+
+
+def test_overpass_tries_mirrors_when_primary_fails(monkeypatch):
+    calls: list[str] = []
+
+    def fake_request_json(url, **kwargs):
+        calls.append(url)
+        if "overpass-api.de" in url:
+            raise http.HttpError("HTTP 504", 504)
+        return {"elements": []}
+
+    monkeypatch.setattr(places, "request_json", fake_request_json)
+    data, url = places.query_overpass(12.99, 77.69, ["mall"], 1000)
+    assert data["elements"] == []
+    assert "kumi.systems" in url
+    assert len(calls) >= 2
 
 
 def test_http_retries_then_raises_and_never_leaks_keys(monkeypatch):

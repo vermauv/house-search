@@ -82,7 +82,24 @@ After `npm install -g @vermauv/house-search`, use `house-search` or `hs` instead
 2. Commit, then tag and push: `git tag v0.1.0 && git push origin main --tags` (tag must match `v` + `package.json` version).
 3. GitHub Actions runs `npm test` and `npm publish --provenance --access public` using **npm trusted publishing (OIDC)**—no long-lived `NPM_TOKEN`.
 
-One-time setup on [npmjs.com](https://www.npmjs.com): package **Settings → Trusted publishing → GitHub Actions** — organization/user `vermauv`, repository `house-search`, workflow filename **`release.yml`** (exact name). Enable **allow publish** if you are replacing the `0.0.0-stage` placeholder with a real release. The npm registry page shows whatever **`README.md`** is included in the published tarball (`package.json` → `"files"`); it is not synced from GitHub automatically.
+One-time setup on [npmjs.com](https://www.npmjs.com): package **Settings → Trusted publishing → GitHub Actions** — organization/user `vermauv`, repository `house-search`, workflow filename **`release.yml`** (exact name). Under **Allowed actions**, enable **`npm publish`** (direct to registry). Newer configs default to **`npm stage publish` only**; without **allow publish**, CI fails with `403 OIDC permission denied for this action` even though provenance is signed.
+
+CLI (requires **npm 11.15+** with 2FA): only **one** trusted publisher per package; you cannot add `--allow-publish` to an existing entry (409 Conflict). List, revoke, recreate:
+
+```bash
+npm trust list @vermauv/house-search
+npm trust revoke @vermauv/house-search --id=<trust-id-from-list>
+npm trust github @vermauv/house-search \
+  --file release.yml \
+  --repository vermauv/house-search \
+  --allow-publish \
+  --allow-stage-publish \
+  -y
+```
+
+Confirm `permissions: publish, stage publish`. Or delete/recreate the publisher on npmjs.com under **Trusted publishing**.
+
+After fixing permissions, re-run the failed **release** workflow for tag `v0.2.0` (Actions → release → Re-run all jobs).
 
 Manual publish still works: `npm login`, then `npm publish --access public` from the repo root.
 

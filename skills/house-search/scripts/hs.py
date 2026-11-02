@@ -63,7 +63,16 @@ def cmd_geocode(a: argparse.Namespace) -> int:
 
 def cmd_nearby(a: argparse.Namespace) -> int:
     kinds = [k.strip() for k in a.kinds.split(",") if k.strip()]
-    return _emit(places.nearby(a.lat, a.lon, kinds, a.radius, a.limit))
+    raw, endpoint = places.query_overpass(a.lat, a.lon, kinds, a.radius)
+    if a.out:
+        Path(a.out).parent.mkdir(parents=True, exist_ok=True)
+        Path(a.out).write_text(json.dumps(raw, indent=2, ensure_ascii=False), encoding="utf-8")
+    grouped = places.parse_elements(raw.get("elements", []), a.lat, a.lon, kinds)
+    payload = {k: v[: a.limit] for k, v in grouped.items()}
+    payload["_meta"] = {"overpass_endpoint": endpoint, "element_count": len(raw.get("elements", []))}
+    if a.out:
+        payload["_meta"]["raw_path"] = str(Path(a.out).resolve())
+    return _emit(payload)
 
 
 def cmd_traffic(a: argparse.Namespace) -> int:
@@ -139,6 +148,7 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--kinds", default="hospital,metro,mall", help=f"comma list of {sorted(places.KINDS)}")
     s.add_argument("--radius", type=int, default=5000, help="metres")
     s.add_argument("--limit", type=int, default=5)
+    s.add_argument("--out", help="optional path to write raw Overpass JSON (for debugging or re-parse)")
     s.set_defaults(fn=cmd_nearby)
 
     s = sub.add_parser("traffic", help="traffic multiplier for a trip at a departure time (needs GOOGLE_MAPS_API_KEY)")
@@ -204,7 +214,7 @@ def main(argv: list[str] | None = None) -> int:
         return fn(args)
     except BrokenPipeError:  # e.g. piped into `head`; the reader left, not an error
         return 0
-    except (traffic.MissingKeyError, RuntimeError, ValueError, OSError, KeyError) as exc:
+    except (traffic.MissingKeyError, RuntimeError, ValueError, OSError, KeyError, json.JSONDecodeError) as exc:
         json.dump({"error": type(exc).__name__, "message": str(exc)}, sys.stdout)
         sys.stdout.write("\n")
         return 3 if isinstance(exc, traffic.MissingKeyError) else 1

@@ -1,6 +1,6 @@
 {
   "name": "house-search",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Describe the rental you want in plain English; get a ranked shortlist across rental platforms, scored on safety, hospital and ambulance access, metro, malls, office commute and waterlogging risk.",
   "author": { "name": "house-search contributors" },
   "license": "MIT",

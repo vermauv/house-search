@@ -1,6 +1,6 @@
 {
   "name": "@vermauv/house-search",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "CLI helpers for the /house-search agent skill (normalize, geocode, rank, report). Not a listing marketplace.",
   "license": "MIT",
   "repository": {

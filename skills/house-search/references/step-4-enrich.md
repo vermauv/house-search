@@ -24,10 +24,11 @@ The result carries `warning` and `icon` (⚠️) and the evidence links. Attach 
 
 ## 3. Hospitals and ambulance time (per listing)
 
-1. Find candidates:
+1. Find candidates (stdout is parsed JSON; do **not** invent a separate `osm_raw.json` unless you passed `--out` and the command succeeded):
    ```bash
    python3 <skill-dir>/scripts/hs.py nearby --lat <lat> --lon <lon> --kinds hospital --radius 6000 --limit 6
    ```
+   Optional cache for debugging: add `--out <output-dir>/osm_nearby_hospital.json`. If `nearby` exits non-zero or prints `"error"`, record `enrichment.gaps.medical` with the message and continue — do not `json.load` a file that was never written.
 2. **Verify emergency capability for the nearest 3.** A map "hospital" can be a clinic or a specialty centre without a casualty ward. Search each (`"<name> <city> 24x7 emergency casualty ambulance"`) and set `emergency: true/false`. Prefer multi-speciality and trauma-capable hospitals; note when the nearest real emergency department is further than the nearest hospital.
 3. **Ambulance time** for each of the top 2 to 3 emergency hospitals, travelling **hospital → home**, in full traffic. The helper samples a morning and an evening weekday slot and keeps the worst:
    ```bash

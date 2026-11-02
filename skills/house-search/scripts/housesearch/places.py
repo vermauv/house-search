@@ -10,9 +10,15 @@ from __future__ import annotations
 from typing import Any
 
 from .geo import haversine_km
-from .http import Transport, request_json
+from .http import HttpError, Transport, request_json
 
-OVERPASS = "https://overpass-api.de/api/interpreter"
+# Primary + public mirrors (tried in order when the first is slow or down).
+OVERPASS_ENDPOINTS: tuple[str, ...] = (
+    "https://overpass-api.de/api/interpreter",
+    "https://overpass.kumi.systems/api/interpreter",
+    "https://overpass.openstreetmap.fr/api/interpreter",
+)
+OVERPASS = OVERPASS_ENDPOINTS[0]
 
 KINDS: dict[str, list[str]] = {
     "hospital": ['["amenity"="hospital"]'],
@@ -30,7 +36,38 @@ def build_query(lat: float, lon: float, kinds: list[str], radius_m: int) -> str:
     if unknown:
         raise ValueError(f"Unknown kinds {unknown}; choose from {sorted(KINDS)}")
     clauses = [f"nwr{sel}(around:{radius_m},{lat},{lon});" for k in kinds for sel in KINDS[k]]
-    return "[out:json][timeout:25];(" + "".join(clauses) + ");out center tags;"
+    return "[out:json][timeout:45];(" + "".join(clauses) + ");out center tags;"
+
+
+def query_overpass(
+    lat: float,
+    lon: float,
+    kinds: list[str],
+    radius_m: int,
+    transport: Transport | None = None,
+) -> tuple[dict, str]:
+    """Run Overpass and return (raw JSON, endpoint URL used)."""
+    query = build_query(lat, lon, kinds, radius_m)
+    endpoints = (OVERPASS,) if transport is not None else OVERPASS_ENDPOINTS
+    last: HttpError | None = None
+    for url in endpoints:
+        try:
+            data = request_json(
+                url,
+                form={"data": query},
+                transport=transport,
+                timeout=60.0,
+                retries=1,
+            )
+            if not isinstance(data, dict):
+                raise HttpError(f"Unexpected Overpass payload from {url}")
+            return data, url
+        except HttpError as exc:
+            last = exc
+            if transport is not None:
+                raise
+    msg = str(last) if last else "no Overpass endpoint responded"
+    raise RuntimeError(f"OpenStreetMap Overpass unavailable after {len(endpoints)} mirror(s): {msg}") from last
 
 
 def _kind_of(tags: dict[str, str], kinds: list[str]) -> str | None:
@@ -91,6 +128,8 @@ def nearby(
     `km` is straight-line distance, not road distance; use traffic.py for
     drive times.
     """
-    data = request_json(OVERPASS, form={"data": build_query(lat, lon, kinds, radius_m)}, transport=transport)
+    data, endpoint = query_overpass(lat, lon, kinds, radius_m, transport)
     grouped = parse_elements(data.get("elements", []), lat, lon, kinds)
-    return {k: v[:limit] for k, v in grouped.items()}
+    trimmed = {k: v[:limit] for k, v in grouped.items()}
+    trimmed["_meta"] = {"overpass_endpoint": endpoint, "element_count": len(data.get("elements", []))}
+    return trimmed
